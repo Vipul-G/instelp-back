@@ -12,7 +12,9 @@ const application = createApplication({
 const mySchema = application.createSchemaForApollo();
 
 async function startApolloServer() {
-  const server = new ApolloServer({ schema: mySchema, context: ()=>({ name: 'vipul gautam' }) })
+  const server = new ApolloServer({ schema: mySchema, context: ()=>({ 
+    name: 'vipul gautam' 
+  }) })
   await server.start();
 
   const app = express();
