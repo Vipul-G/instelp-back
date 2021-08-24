@@ -1,29 +1,29 @@
 import express from 'express';
-import { ApolloServer } from 'apollo-server-express';
-
-import { createApplication } from 'graphql-modules';
-import { BookModule }  from './graphq-modules/user';
-
-// This is your application, it contains your GraphQL schema and the implementation of it.
-const application = createApplication({
-  modules: [BookModule]
-});
-// This is your actual GraphQL schema
-const mySchema = application.createSchemaForApollo();
+import { ApolloServer, gql } from 'apollo-server-express';
+import { merge } from 'lodash';
+import * as Question from './modules/question';
+import * as User from './modules/user';
 
 async function startApolloServer() {
-  const server = new ApolloServer({ schema: mySchema, context: ()=>({ 
-    name: 'vipul gautam' 
-  }) })
+
+  const typeDef = gql`
+    type Query {
+      _empty: String 
+    }
+  `
+
+  const server = new ApolloServer({ 
+    typeDefs: [typeDef, Question.typeDefs, User.typeDefs], 
+    resolvers: merge(Question.resolvers, User.resolvers)
+  });
   await server.start();
 
   const app = express();
   server.applyMiddleware({ app });
 
-  await new Promise((resolve: any, reject) => app.listen({ port: 4000 }, resolve));
+  await new Promise((resolve: any) => app.listen({ port: 4000 }, resolve));
   console.log(`🚀 Server ready at http://localhost:4000${server.graphqlPath}`);
   return { server, app };
 }
 
 startApolloServer().catch(console.log)
-
